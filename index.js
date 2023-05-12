@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 const port = process.env.PORT || 5000;
 const app = express()
 require('dotenv').config()
@@ -26,7 +27,15 @@ async function run() {
     await client.connect();
     const carCollections = client.db('CarDoctorDb').collection('services')
     const bookingCollection = client.db('CarDoctorDb').collection('bookings')
+     // jwt routes
+     app.post('/jwt',(req,res)=>{
+          const user = req.body;
+          console.log(user);
+          const token = jwt.sign(user, process.env.ACCESS_TOKEN,{expiresIn:'1h'})
+          res.send({token})
+     })
 
+     // service routes
     app.get('/services', async(req,res)=>{
      const courser = carCollections.find()
      const result = await courser.toArray()
@@ -40,11 +49,11 @@ async function run() {
           // Include only the `title` and `imdb` fields in each returned document
           projection: {   title: 1, price: 1,service_id:1,img:1 },
         };
-
      const result = await carCollections.findOne(query,options)
      res.send(result)
     })
-//     bookings
+    // bookings routes
+
     app.get('/bookings',async(req,res)=>{
      console.log(req.query.email);
      let query ={}
@@ -61,7 +70,7 @@ async function run() {
           const result = await bookingCollection.insertOne(booking)
           res.send(result)
     })
-//     update data 
+//     update routes
     app.patch('/bookings/:id', async(req,res)=>{
      const id = req.params.id;
      const filter = {_id: new ObjectId(id)}
@@ -76,7 +85,7 @@ async function run() {
      const result = await bookingCollection.updateOne(filter,updateDoc)
      res.send(result)
     })
-// delete
+// delete routes
     app.delete('/bookings/:id',async(req,res)=>{
      const id = req.params.id;
      const query = {_id : new ObjectId(id)}
