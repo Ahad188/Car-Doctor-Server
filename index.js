@@ -12,7 +12,7 @@ const corsConfig = {
 
 
 // middleware
-app.use(cors(corsConfig))
+app.use(cors())
 app.options("", cors(corsConfig))
 app.use(express.json())
 
