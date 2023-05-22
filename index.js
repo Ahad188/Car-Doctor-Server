@@ -55,7 +55,21 @@ async function run() {
 
      // service routes
     app.get('/services', async(req,res)=>{
-     const courser = carCollections.find()
+     const sort = req.query.sort
+     const search = req.query.search;
+     console.log(search);
+     // const query = {};
+            // const query = { price: {$gte: 50, $lte:150}};
+            // db.InspirationalWomen.find({first_name: { $regex: /Harriet/i} })
+            const query = {title: { $regex: search, $options: 'i'}}
+     // const query = {};
+     const options = {
+          // sort matched documents in descending order by rating
+          sort: { "price": sort === 'asc' ? 1 : -1 },
+          
+           
+        };
+     const courser = carCollections.find(query,options)
      const result = await courser.toArray()
      res.send(result)
     })
